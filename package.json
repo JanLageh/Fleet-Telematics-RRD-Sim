@@ -1,25 +1,12 @@
 {
-  "name": "vite-project",
+  "name": "fleet-telematics-rrd-sim",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.1.0",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
-  },
-  "devDependencies": {
-    "@types/node": "^24.13.3",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
-    "@vitejs/plugin-react": "^6.1.0",
-    "oxlint": "^1.79.0",
-    "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "dev:web": "pnpm --filter @fleet/web dev",
+    "dev:mobile": "pnpm --filter @fleet/mobile start",
+    "build:web": "pnpm --filter @fleet/web build",
+    "lint": "pnpm --filter @fleet/web lint",
+    "clean": "pnpm -r exec rm -rf node_modules dist .expo"
   }
 }
