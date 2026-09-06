@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "dev:backend": "./start-backend.sh",
     "dev:web": "pnpm --filter @fleet/web dev",
     "dev:mobile": "pnpm --filter @fleet/mobile start",
     "build:web": "pnpm --filter @fleet/web build",

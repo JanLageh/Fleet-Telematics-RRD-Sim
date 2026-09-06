@@ -3,6 +3,8 @@ import { StatusBar } from "expo-status-bar";
 import {
   ActivityIndicator,
   FlatList,
+  NativeModules,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -15,10 +17,29 @@ import {
   type SimulationResponse,
 } from "@fleet/api-client";
 
-// In Expo, EXPO_PUBLIC_ prefix makes environment variables available on client
-// For Android emulator, use http://10.0.2.2:8000
-// For physical device via Expo Go, set to your computer LAN IP, e.g. http://192.168.1.50:8000
-const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000";
+// Resolve backend URL: EXPO_PUBLIC_API_URL -> Metro bundle host IP -> Emulator fallback -> localhost
+function getApiUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  const scriptURL: string | undefined = NativeModules?.SourceCode?.scriptURL;
+  if (scriptURL) {
+    const match = scriptURL.match(/https?:\/\/([^/:]+)/);
+    const host = match ? match[1] : null;
+    if (host && host !== "localhost" && host !== "127.0.0.1") {
+      return `http://${host}:8000`;
+    }
+  }
+
+  if (Platform.OS === "android") {
+    return "http://10.0.2.2:8000";
+  }
+
+  return "http://localhost:8000";
+}
+
+const API_URL = getApiUrl();
 const client = createFleetClient({ baseUrl: API_URL });
 
 export default function App() {
@@ -42,7 +63,9 @@ export default function App() {
         setSelectedVehicle(data[0]);
       }
     } catch (err: any) {
-      setError(err?.message || "Failed to load vehicles. Ensure backend is running.");
+      setError(
+        `${err?.message || "Failed to load vehicles. Ensure backend is running."} (API: ${API_URL})`
+      );
     } finally {
       setLoading(false);
     }
@@ -65,7 +88,7 @@ export default function App() {
       });
       setSimResult(result);
     } catch (err: any) {
-      setError(err?.message || "Simulation failed.");
+      setError(`${err?.message || "Simulation failed."} (API: ${API_URL})`);
     } finally {
       setLoading(false);
     }
